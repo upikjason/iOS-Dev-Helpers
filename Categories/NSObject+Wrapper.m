@@ -17,7 +17,7 @@
 
 @implementation NSObject (Wrapper)
 #pragma mark STATIC
-static const char* detailPropertyName_ = "detailPropertyName_";
+static const char* detailPropertyName_ = "_detailInfo";
 
 #pragma mark MAIN
 
@@ -75,20 +75,12 @@ static const char* detailPropertyName_ = "detailPropertyName_";
     {
         objc_property_t property = properties[i];
         const char *name = property_getName(property);
-//        const char *attr = property_getAttributes(property);
         
         NSString* propName = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-//        NSString* propType = [NSString stringWithCString:attr encoding:NSUTF8StringEncoding];
         
         id v = [dict objectForKey:propName];
         if (v)
         {
-            //type-force
-//            if ([propType rangeOfString:@"NSString"].location != NSNotFound && )
-//                v = [NSString stringWithFormat:@"%@",v];
-//            else if ([propType rangeOfString:@"NSNumber"].location != NSNotFound && ![v isKindOfClass:[NSNumber class]])
-//                v = [NSNumber numberWithDouble:[v doubleValue]];
-            
             //and assign
             [self setValue:v forKey:propName];
         }
