@@ -23,7 +23,7 @@
     UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title message:msg delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
     NSMutableDictionary* d = [NSMutableDictionary dictionary];
     if (onYes) [d setObject:[onYes copy] forKey:@"onAccept"];
-    if (onNo) [d setObject:[onNo copy] forKey:@"onAccept"];
+    if (onNo) [d setObject:[onNo copy] forKey:@"onCancel"];
 
     [alert setDetail:d forKey:@"Blocks"];
     [alert show];
@@ -34,7 +34,7 @@
     UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title message:msg delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
     NSMutableDictionary* d = [NSMutableDictionary dictionary];
     if (onOK) [d setObject:[onOK copy] forKey:@"onAccept"];
-    if (onCancel) [d setObject:[onCancel copy] forKey:@"onAccept"];
+    if (onCancel) [d setObject:[onCancel copy] forKey:@"onCancel"];
     
     [alert setDetail:d forKey:@"Blocks"];
     [alert show];
