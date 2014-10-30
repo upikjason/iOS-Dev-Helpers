@@ -1,7 +1,6 @@
 //
 //  NSObject+Wrapper.h
 //
-//  Created by upikjason
 //  Copyright (c) 2014 upikjason. All rights reserved.
 //
 
@@ -14,5 +13,8 @@
 
 - (void) setDetail:(id)value forKey:(NSString*)key;
 - (id) getDetailOfKey:(NSString*)key;
+
+- (void) removeDetailOfKey:(NSString*)key;
+- (void) clearAllDetails;
 
 @end

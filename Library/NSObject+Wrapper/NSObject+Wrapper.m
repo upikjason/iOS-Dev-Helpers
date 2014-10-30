@@ -1,7 +1,6 @@
 //
 //  NSObject+Wrapper.m
 //
-//  Created by upikjason
 //  Copyright (c) 2014 upikjason. All rights reserved.
 //
 
@@ -35,6 +34,7 @@ static const char* detailPropertyName_ = "_detailInfo";
     {
         [self fillPropertiesWithDictionary:dict forClass:[cls superclass]];
     }
+    
 }
 
 - (NSDictionary*) getPropertiesDictionary
@@ -64,6 +64,18 @@ static const char* detailPropertyName_ = "_detailInfo";
     }
     
     return [d objectForKey:key];
+}
+
+- (void) removeDetailOfKey:(NSString*)key
+{
+    NSMutableDictionary* d = objc_getAssociatedObject(self, detailPropertyName_);
+    [d removeObjectForKey:key];
+}
+
+- (void) clearAllDetails
+{
+    NSMutableDictionary* d = objc_getAssociatedObject(self, detailPropertyName_);
+    [d removeAllObjects];
 }
 
 #pragma mark PRIVATE

@@ -2,7 +2,6 @@
 //  AppDelegate.m
 //  iOS-Dev-Helper
 //
-//  Created by upikjason on 9/4/14.
 //  Copyright (c) 2014 upikjason. All rights reserved.
 //
 

@@ -1,7 +1,6 @@
 //
 //  UIAlertView+Wrapper.h
 //
-//  Created by upikjason on 7/23/14.
 //  Copyright (c) 2014 upikjason. All rights reserved.
 //
 
