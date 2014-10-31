@@ -1,0 +1,27 @@
+==================================================
+	_details
+==================================================
+
+1. Info
+-Create PDF reader
+	+Support vertical scrolling
+	+Search and highlight text inside PDF file
+	
+2. Details
+
+--------------------------------------------------
+#2. 
+
+--------------------------------------------------
+#1. Overral structure
+	
+	-A UIView contain a scroll view with content size expand vertically
+	-Scroll view contain table view (cell is pdf-cell-view)
+	-Each tableview cell can load individual pdf page to its layer, and search, highlight text on view
+	-PDFReaderView load a pdf url and process pdf render independently
+	
+	-Reference to PDFKitten library
+		+Current support horizontal scrolling only
+		+Support search, highlight
+		+Support zoom page
+

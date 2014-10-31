@@ -51,10 +51,10 @@
 }
 
 #pragma mark MAIN
-@property (nonatomic,assign) id<JPickerViewDelegate> delegate;
+@property (nonatomic,weak) id<JPickerViewDelegate> delegate;
 
-@property (nonatomic,retain) UIImage* pickerBackgroundImage;
-@property (nonatomic,retain) UIImage* pickerSelectionIndicatorImage;
+@property (nonatomic,strong) UIImage* pickerBackgroundImage;
+@property (nonatomic,strong) UIImage* pickerSelectionIndicatorImage;
 @property (nonatomic) float pickerRowHeight;
 @property (nonatomic) float pickerListWidth;
 
