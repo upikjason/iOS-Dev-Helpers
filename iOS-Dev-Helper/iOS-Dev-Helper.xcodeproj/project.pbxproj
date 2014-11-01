@@ -43,9 +43,9 @@
 		5A5101F91A0374A400C98551 /* TrueTypeFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5101ED1A0374A400C98551 /* TrueTypeFont.m */; };
 		5A5101FA1A0374A400C98551 /* Type1Font.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5101EF1A0374A400C98551 /* Type1Font.m */; };
 		5A5101FB1A0374A400C98551 /* Type3Font.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5101F11A0374A400C98551 /* Type3Font.m */; };
-		5A5102081A0383A200C98551 /* PDFContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5102071A0383A200C98551 /* PDFContentView.m */; };
 		5A51020B1A03866100C98551 /* TC.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 5A51020A1A03866100C98551 /* TC.pdf */; };
 		5A51020D1A038B4900C98551 /* JPDFReaderCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A51020C1A038B4900C98551 /* JPDFReaderCellView.xib */; };
+		CBC1B33C1A0532FB0001DD13 /* PDFContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC1B33B1A0532FB0001DD13 /* PDFContentView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -118,10 +118,10 @@
 		5A5101EF1A0374A400C98551 /* Type1Font.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Type1Font.m; sourceTree = "<group>"; };
 		5A5101F01A0374A400C98551 /* Type3Font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Type3Font.h; sourceTree = "<group>"; };
 		5A5101F11A0374A400C98551 /* Type3Font.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Type3Font.m; sourceTree = "<group>"; };
-		5A5102061A0383A200C98551 /* PDFContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PDFContentView.h; path = ../ContentView/PDFContentView.h; sourceTree = "<group>"; };
-		5A5102071A0383A200C98551 /* PDFContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PDFContentView.m; path = ../ContentView/PDFContentView.m; sourceTree = "<group>"; };
 		5A51020A1A03866100C98551 /* TC.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = TC.pdf; sourceTree = "<group>"; };
 		5A51020C1A038B4900C98551 /* JPDFReaderCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = JPDFReaderCellView.xib; path = ../../Library/JPDFReaderView/JPDFReaderCellView.xib; sourceTree = "<group>"; };
+		CBC1B33A1A0532FB0001DD13 /* PDFContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFContentView.h; sourceTree = "<group>"; };
+		CBC1B33B1A0532FB0001DD13 /* PDFContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFContentView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,7 +261,7 @@
 		5A5101B31A03720200C98551 /* External */ = {
 			isa = PBXGroup;
 			children = (
-				5A5101FC1A037C2400C98551 /* ContentView */,
+				CBC1B3391A0532FB0001DD13 /* ContentView */,
 				5A5101B41A03720200C98551 /* Font */,
 				5A5101BD1A03720200C98551 /* RenderingState */,
 				5A5101C21A03720200C98551 /* Scanner */,
@@ -381,22 +381,21 @@
 			path = SimpleFonts;
 			sourceTree = "<group>";
 		};
-		5A5101FC1A037C2400C98551 /* ContentView */ = {
-			isa = PBXGroup;
-			children = (
-				5A5102061A0383A200C98551 /* PDFContentView.h */,
-				5A5102071A0383A200C98551 /* PDFContentView.m */,
-			);
-			name = ContentView;
-			path = PageView;
-			sourceTree = "<group>";
-		};
 		5A5102091A03866100C98551 /* Test */ = {
 			isa = PBXGroup;
 			children = (
 				5A51020A1A03866100C98551 /* TC.pdf */,
 			);
 			path = Test;
+			sourceTree = "<group>";
+		};
+		CBC1B3391A0532FB0001DD13 /* ContentView */ = {
+			isa = PBXGroup;
+			children = (
+				CBC1B33A1A0532FB0001DD13 /* PDFContentView.h */,
+				CBC1B33B1A0532FB0001DD13 /* PDFContentView.m */,
+			);
+			path = ContentView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -477,7 +476,7 @@
 				5A5101D41A03720200C98551 /* RenderingState.m in Sources */,
 				5A5101F41A0374A400C98551 /* CIDType2Font.m in Sources */,
 				5A5101F91A0374A400C98551 /* TrueTypeFont.m in Sources */,
-				5A5102081A0383A200C98551 /* PDFContentView.m in Sources */,
+				CBC1B33C1A0532FB0001DD13 /* PDFContentView.m in Sources */,
 				5A5101D21A03720200C98551 /* FontCollection.m in Sources */,
 				5A5101F31A0374A400C98551 /* CIDType0Font.m in Sources */,
 				5A5101FB1A0374A400C98551 /* Type3Font.m in Sources */,

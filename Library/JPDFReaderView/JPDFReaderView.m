@@ -137,22 +137,22 @@
 }
 
 #pragma mark UIScrollViewDelegate
-- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
-{
-    if (scrollView == scrollContainer)
-    {
-        return tbView;
-    }
-    return nil;
-}
-
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
-{
-    widthOfPage = self.bounds.size.width*scale;
-    heightOfPage = self.bounds.size.height*scale;
-    tbView.frame = CGRectMake(0, 0,widthOfPage , heightOfPage);
-    [tbView reloadData];
-    
-    [self relayout];
-}
+//- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+//{
+//    if (scrollView == scrollContainer)
+//    {
+//        return tbView;
+//    }
+//    return nil;
+//}
+//
+//- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
+//{
+//    widthOfPage = self.bounds.size.width*scale;
+//    heightOfPage = self.bounds.size.height*scale;
+//    tbView.frame = CGRectMake(0, 0,widthOfPage , heightOfPage);
+//    [tbView reloadData];
+//    
+//    [self relayout];
+//}
 @end
