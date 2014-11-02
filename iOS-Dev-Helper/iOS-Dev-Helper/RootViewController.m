@@ -25,9 +25,9 @@
 {
     [super viewDidLayoutSubviews];
     pdfView.frame = self.view.bounds;
-    NSString* path = [[NSBundle mainBundle] pathForResource:@"TC" ofType:@"pdf"];
-//    pdfView.highlightKeyword = @"Term";
-    [pdfView loadPDFURL:[NSURL fileURLWithPath:path]];    
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"node" ofType:@"pdf"];
+    pdfView.highlightKeyword = @"Node";
+    [pdfView loadPDFURL:[NSURL fileURLWithPath:path]];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -13,7 +13,7 @@
 //        self.backgroundColor = [UIColor whiteColor];
 //		
 //		CATiledLayer *tiledLayer = (CATiledLayer *) [self layer];
-//		tiledLayer.frame = CGRectMake(0, 0, 100, 100);
+//		tiledLayer.frame = CGRectMake(0, 0, 512, 512);
 //		[tiledLayer setTileSize:CGSizeMake(1024, 1024)];
 //		[tiledLayer setLevelsOfDetail:5];
 //		[tiledLayer setLevelsOfDetailBias:2];
@@ -53,15 +53,9 @@
 	CGContextSetFillColorWithColor(ctx, [[UIColor whiteColor] CGColor]);
 	CGContextFillRect(ctx, rcBound);
 	
-    // Flip the coordinate system
-    
+    // Flip the coordinate system    
 	CGContextTranslateCTM(ctx, 0.0, rcBound.size.height);
 	CGContextScaleCTM(ctx, 1.0, -1.0);
-    
-	// Transform coordinate system to match PDF
-//	NSInteger rotationAngle = CGPDFPageGetRotationAngle(pdfPage);
-//	CGAffineTransform transform = CGPDFPageGetDrawingTransform(pdfPage, kCGPDFCropBox, rcBound, -rotationAngle, YES);
-//	CGContextConcatCTM(ctx, transform);
     
     CGRect rc = CGPDFPageGetBoxRect(pdfPage, kCGPDFMediaBox);
     float scaleRatio = MIN(rcBound.size.width/rc.size.width,rcBound.size.height/rc.size.height);

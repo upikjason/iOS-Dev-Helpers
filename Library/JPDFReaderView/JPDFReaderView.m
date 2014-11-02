@@ -53,8 +53,8 @@
     refDocument = CGPDFDocumentCreateWithURL((CFURLRef)url);
     numberOfPage = CGPDFDocumentGetNumberOfPages(refDocument);
     
-    heightOfPage = tbView.frame.size.height;
     widthOfPage = tbView.frame.size.width;
+    heightOfPage = tbView.frame.size.height;
 
     [tbView reloadData];
 
@@ -144,68 +144,59 @@
     return cell;
 }
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    float bound = widthOfPage-tbView.frame.size.width;
+    
+    if (scrollView.contentOffset.x > bound)
+    {
+        [scrollView setContentOffset:CGPointMake(bound, scrollView.contentOffset.y)];
+    }
+    
+    if (scrollView.contentOffset.x < 0)
+    {
+        [scrollView setContentOffset:CGPointMake(0, scrollView.contentOffset.y)];
+    }
+}
 #pragma mark UIGestureRecognizerDelegate
 
 - (void)scalePiece:(UIPinchGestureRecognizer *)gestureRecognizer {
 	   
     if ([gestureRecognizer state] == UIGestureRecognizerStateBegan || [gestureRecognizer state] == UIGestureRecognizerStateChanged) {
         
-        UIView* vw = [gestureRecognizer view];
+//        UIView* vw = [gestureRecognizer view];
         CGPoint pos = [gestureRecognizer locationInView:nil];
-        
-        float ratioLeft =  pos.x/vw.frame.size.width;
-        float ratioTop = pos.y/vw.frame.size.height;
+                
+        float ratioLeft = pos.x/tbView.frame.size.width;
+        float ratioTop = tbView.contentOffset.y/tbView.contentSize.height;
         
         float scale = [gestureRecognizer scale];
         
-//        float newWidth = vw.frame.size.width*scale;
-//        if (newWidth <= scrollContainer.frame.size.width)
-//        {
-//            scale = scrollContainer.frame.size.width/vw.frame.size.width;
-//        }
-//        
-//        if (scale == 1.0) return;
-//        
-//        [gestureRecognizer view].transform = CGAffineTransformScale([[gestureRecognizer view] transform], scale, scale);
-//        
-//        {
-//            CGPoint topLeft = [vw newTopLeft];
-//            CGPoint bottomRight = [vw newBottomRight];
-//            
-//            vw.transform = CGAffineTransformIdentity;
-////            vw.frame = CGRectMake(0, 0, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y);
-//
-//            widthOfPage = bottomRight.x-topLeft.x;
-//            heightOfPage = bottomRight.y-topLeft.y;
-//
-//            tbView.contentSize = CGSizeMake(widthOfPage, tbView.contentSize.height);
-//            [tbView reloadData];
-//            
-//            [self relayout];
-//        }
-        widthOfPage = widthOfPage*scale;
-        heightOfPage = heightOfPage*scale;
+        float ww = widthOfPage*scale;
+        float hh = heightOfPage*scale;
         
-        if (widthOfPage < tbView.frame.size.width)
+        if (ww < tbView.frame.size.width)
         {
-            widthOfPage = tbView.frame.size.width;
-            heightOfPage = tbView.frame.size.height;
+            ww = tbView.frame.size.width;
+            hh = tbView.frame.size.height;
         }
         
-        if (widthOfPage > tbView.frame.size.width*1.8)
+        if (ww > tbView.frame.size.width*1.8)
         {
-            widthOfPage = tbView.frame.size.width*1.8;
-            heightOfPage = tbView.frame.size.height*1.8;
+            ww = tbView.frame.size.width*1.8;
+            hh = tbView.frame.size.height*1.8;
         }
+        
+        if (ww == widthOfPage) return;
+        
+        widthOfPage = ww;
+        heightOfPage = hh;
 
         [tbView reloadData];
         tbView.contentSize = CGSizeMake(widthOfPage, tbView.contentSize.height);
 
         UIScrollView* scroll = ((UIScrollView*)tbView);
-
-        [scroll setAlwaysBounceHorizontal:NO];
-        
-//        [scroll setContentOffset:CGPointMake( vw.frame.size.width*ratioLeft, vw.frame.size.height*ratioTop)];
+        [scroll setContentOffset:CGPointMake( tbView.contentSize.width*ratioLeft, tbView.contentSize.height*ratioTop)];
 
 		[gestureRecognizer setScale:1];
     }

@@ -47,6 +47,8 @@
 		5A51020D1A038B4900C98551 /* JPDFReaderCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A51020C1A038B4900C98551 /* JPDFReaderCellView.xib */; };
 		CB3FFA7C1A0632730038022D /* UIView+Transform.m in Sources */ = {isa = PBXBuildFile; fileRef = CB3FFA7B1A0632730038022D /* UIView+Transform.m */; };
 		CB3FFA7E1A0660950038022D /* input_pdf.pdf in Resources */ = {isa = PBXBuildFile; fileRef = CB3FFA7D1A0660950038022D /* input_pdf.pdf */; };
+		CB3FFA821A0672070038022D /* RoR.pdf in Resources */ = {isa = PBXBuildFile; fileRef = CB3FFA811A0672070038022D /* RoR.pdf */; };
+		CB3FFA841A0683A30038022D /* node.pdf in Resources */ = {isa = PBXBuildFile; fileRef = CB3FFA831A0683A30038022D /* node.pdf */; };
 		CBC1B33C1A0532FB0001DD13 /* PDFContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC1B33B1A0532FB0001DD13 /* PDFContentView.m */; };
 /* End PBXBuildFile section */
 
@@ -125,6 +127,8 @@
 		CB3FFA7A1A0632730038022D /* UIView+Transform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+Transform.h"; path = "../../Library/JPDFReaderView/UIView+Transform.h"; sourceTree = "<group>"; };
 		CB3FFA7B1A0632730038022D /* UIView+Transform.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+Transform.m"; path = "../../Library/JPDFReaderView/UIView+Transform.m"; sourceTree = "<group>"; };
 		CB3FFA7D1A0660950038022D /* input_pdf.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = input_pdf.pdf; sourceTree = "<group>"; };
+		CB3FFA811A0672070038022D /* RoR.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = RoR.pdf; sourceTree = "<group>"; };
+		CB3FFA831A0683A30038022D /* node.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = node.pdf; sourceTree = "<group>"; };
 		CBC1B33A1A0532FB0001DD13 /* PDFContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFContentView.h; sourceTree = "<group>"; };
 		CBC1B33B1A0532FB0001DD13 /* PDFContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFContentView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -391,6 +395,8 @@
 		5A5102091A03866100C98551 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				CB3FFA831A0683A30038022D /* node.pdf */,
+				CB3FFA811A0672070038022D /* RoR.pdf */,
 				CB3FFA7D1A0660950038022D /* input_pdf.pdf */,
 				5A51020A1A03866100C98551 /* TC.pdf */,
 			);
@@ -460,8 +466,10 @@
 				5A2086D719B8190300AA63B9 /* InfoPlist.strings in Resources */,
 				5A51020B1A03866100C98551 /* TC.pdf in Resources */,
 				CB3FFA7E1A0660950038022D /* input_pdf.pdf in Resources */,
+				CB3FFA821A0672070038022D /* RoR.pdf in Resources */,
 				5A2086DF19B8190300AA63B9 /* Images.xcassets in Resources */,
 				5A18FACF1A02339E003A8802 /* RootViewController.xib in Resources */,
+				CB3FFA841A0683A30038022D /* node.pdf in Resources */,
 				5A51020D1A038B4900C98551 /* JPDFReaderCellView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
