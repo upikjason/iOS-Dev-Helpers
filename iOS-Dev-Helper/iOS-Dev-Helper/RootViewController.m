@@ -19,9 +19,15 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
+}
+
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    pdfView.frame = self.view.bounds;
     NSString* path = [[NSBundle mainBundle] pathForResource:@"TC" ofType:@"pdf"];
 //    pdfView.highlightKeyword = @"Term";
-    [pdfView loadPDFURL:[NSURL fileURLWithPath:path]];
+    [pdfView loadPDFURL:[NSURL fileURLWithPath:path]];    
 }
 
 - (void)didReceiveMemoryWarning {

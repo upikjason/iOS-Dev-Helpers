@@ -6,25 +6,25 @@
 
 #pragma mark - Initialization
 
-- (id)initWithFrame:(CGRect)frame
-{
-    if ((self = [super initWithFrame:frame]))
-    {
-        self.backgroundColor = [UIColor whiteColor];
-		
-		CATiledLayer *tiledLayer = (CATiledLayer *) [self layer];
-		tiledLayer.frame = CGRectMake(0, 0, 100, 100);
-		[tiledLayer setTileSize:CGSizeMake(1024, 1024)];
-		[tiledLayer setLevelsOfDetail:5];
-		[tiledLayer setLevelsOfDetailBias:2];
-    }
-    return self;
-}
-
-+ (Class) layerClass
-{
-	return [CATiledLayer class];
-}
+//- (id)initWithFrame:(CGRect)frame
+//{
+//    if ((self = [super initWithFrame:frame]))
+//    {
+//        self.backgroundColor = [UIColor whiteColor];
+//		
+//		CATiledLayer *tiledLayer = (CATiledLayer *) [self layer];
+//		tiledLayer.frame = CGRectMake(0, 0, 100, 100);
+//		[tiledLayer setTileSize:CGSizeMake(1024, 1024)];
+//		[tiledLayer setLevelsOfDetail:5];
+//		[tiledLayer setLevelsOfDetailBias:2];
+//    }
+//    return self;
+//}
+//
+//+ (Class) layerClass
+//{
+//	return [CATiledLayer class];
+//}
 
 - (void)setKeyword:(NSString *)str
 {
@@ -46,18 +46,35 @@
 
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx
 {
+    CGContextSaveGState(ctx);
+    
+    CGRect rcBound = CGRectMake(0, 0, layer.bounds.size.width, layer.bounds.size.height);
+    
 	CGContextSetFillColorWithColor(ctx, [[UIColor whiteColor] CGColor]);
-	CGContextFillRect(ctx, layer.bounds);
+	CGContextFillRect(ctx, rcBound);
 	
     // Flip the coordinate system
-	CGContextTranslateCTM(ctx, 0.0, layer.bounds.size.height);
+    
+	CGContextTranslateCTM(ctx, 0.0, rcBound.size.height);
 	CGContextScaleCTM(ctx, 1.0, -1.0);
-
+    
 	// Transform coordinate system to match PDF
-	NSInteger rotationAngle = CGPDFPageGetRotationAngle(pdfPage);
-	CGAffineTransform transform = CGPDFPageGetDrawingTransform(pdfPage, kCGPDFCropBox, layer.bounds, -rotationAngle, YES);
-	CGContextConcatCTM(ctx, transform);
-
+//	NSInteger rotationAngle = CGPDFPageGetRotationAngle(pdfPage);
+//	CGAffineTransform transform = CGPDFPageGetDrawingTransform(pdfPage, kCGPDFCropBox, rcBound, -rotationAngle, YES);
+//	CGContextConcatCTM(ctx, transform);
+    
+    CGRect rc = CGPDFPageGetBoxRect(pdfPage, kCGPDFMediaBox);
+    float scaleRatio = MIN(rcBound.size.width/rc.size.width,rcBound.size.height/rc.size.height);
+    CGContextScaleCTM(ctx, scaleRatio, scaleRatio);
+    
+    float ratioBound = rcBound.size.width/rcBound.size.height;
+    float ratioBox = rc.size.width/rc.size.height;
+    
+    float ratio = fabsf(ratioBound-ratioBox);
+    if (ratio < 0.1) ratio = 0;
+    float off = ratio * rc.size.height;
+    CGContextTranslateCTM(ctx, 0, off);
+    
 	CGContextDrawPDFPage(ctx, pdfPage);
 	
 	if (self.keyword)
@@ -72,6 +89,8 @@
             CGContextRestoreGState(ctx);
         }
     }
+    
+    CGContextRestoreGState(ctx);
 }
 
 #pragma mark PDF drawing

@@ -7,7 +7,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface JPDFReaderView : UIView<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate>
+@interface JPDFReaderView : UIView<UITableViewDataSource,UITableViewDelegate,UIGestureRecognizerDelegate>
 {
     CGPDFDocumentRef refDocument;
     int numberOfPage;

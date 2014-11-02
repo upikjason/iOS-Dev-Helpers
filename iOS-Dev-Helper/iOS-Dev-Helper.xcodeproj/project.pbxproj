@@ -45,6 +45,8 @@
 		5A5101FB1A0374A400C98551 /* Type3Font.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A5101F11A0374A400C98551 /* Type3Font.m */; };
 		5A51020B1A03866100C98551 /* TC.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 5A51020A1A03866100C98551 /* TC.pdf */; };
 		5A51020D1A038B4900C98551 /* JPDFReaderCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5A51020C1A038B4900C98551 /* JPDFReaderCellView.xib */; };
+		CB3FFA7C1A0632730038022D /* UIView+Transform.m in Sources */ = {isa = PBXBuildFile; fileRef = CB3FFA7B1A0632730038022D /* UIView+Transform.m */; };
+		CB3FFA7E1A0660950038022D /* input_pdf.pdf in Resources */ = {isa = PBXBuildFile; fileRef = CB3FFA7D1A0660950038022D /* input_pdf.pdf */; };
 		CBC1B33C1A0532FB0001DD13 /* PDFContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC1B33B1A0532FB0001DD13 /* PDFContentView.m */; };
 /* End PBXBuildFile section */
 
@@ -120,6 +122,9 @@
 		5A5101F11A0374A400C98551 /* Type3Font.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Type3Font.m; sourceTree = "<group>"; };
 		5A51020A1A03866100C98551 /* TC.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = TC.pdf; sourceTree = "<group>"; };
 		5A51020C1A038B4900C98551 /* JPDFReaderCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = JPDFReaderCellView.xib; path = ../../Library/JPDFReaderView/JPDFReaderCellView.xib; sourceTree = "<group>"; };
+		CB3FFA7A1A0632730038022D /* UIView+Transform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+Transform.h"; path = "../../Library/JPDFReaderView/UIView+Transform.h"; sourceTree = "<group>"; };
+		CB3FFA7B1A0632730038022D /* UIView+Transform.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+Transform.m"; path = "../../Library/JPDFReaderView/UIView+Transform.m"; sourceTree = "<group>"; };
+		CB3FFA7D1A0660950038022D /* input_pdf.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = input_pdf.pdf; sourceTree = "<group>"; };
 		CBC1B33A1A0532FB0001DD13 /* PDFContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFContentView.h; sourceTree = "<group>"; };
 		CBC1B33B1A0532FB0001DD13 /* PDFContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFContentView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -144,6 +149,8 @@
 				5A5101B31A03720200C98551 /* External */,
 				5A18FABB1A01EA83003A8802 /* JPDFReaderView.h */,
 				5A18FABC1A01EA83003A8802 /* JPDFReaderView.m */,
+				CB3FFA7A1A0632730038022D /* UIView+Transform.h */,
+				CB3FFA7B1A0632730038022D /* UIView+Transform.m */,
 				5A5101B01A036B6C00C98551 /* JPDFReaderPageView.h */,
 				5A5101B11A036B6C00C98551 /* JPDFReaderPageView.m */,
 				5A51020C1A038B4900C98551 /* JPDFReaderCellView.xib */,
@@ -384,6 +391,7 @@
 		5A5102091A03866100C98551 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				CB3FFA7D1A0660950038022D /* input_pdf.pdf */,
 				5A51020A1A03866100C98551 /* TC.pdf */,
 			);
 			path = Test;
@@ -451,6 +459,7 @@
 			files = (
 				5A2086D719B8190300AA63B9 /* InfoPlist.strings in Resources */,
 				5A51020B1A03866100C98551 /* TC.pdf in Resources */,
+				CB3FFA7E1A0660950038022D /* input_pdf.pdf in Resources */,
 				5A2086DF19B8190300AA63B9 /* Images.xcassets in Resources */,
 				5A18FACF1A02339E003A8802 /* RootViewController.xib in Resources */,
 				5A51020D1A038B4900C98551 /* JPDFReaderCellView.xib in Resources */,
@@ -477,6 +486,7 @@
 				5A5101F41A0374A400C98551 /* CIDType2Font.m in Sources */,
 				5A5101F91A0374A400C98551 /* TrueTypeFont.m in Sources */,
 				CBC1B33C1A0532FB0001DD13 /* PDFContentView.m in Sources */,
+				CB3FFA7C1A0632730038022D /* UIView+Transform.m in Sources */,
 				5A5101D21A03720200C98551 /* FontCollection.m in Sources */,
 				5A5101F31A0374A400C98551 /* CIDType0Font.m in Sources */,
 				5A5101FB1A0374A400C98551 /* Type3Font.m in Sources */,
@@ -590,7 +600,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "iOS-Dev-Helper/iOS-Dev-Helper-Prefix.pch";
 				INFOPLIST_FILE = "iOS-Dev-Helper/iOS-Dev-Helper-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -603,7 +615,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "iOS-Dev-Helper/iOS-Dev-Helper-Prefix.pch";
 				INFOPLIST_FILE = "iOS-Dev-Helper/iOS-Dev-Helper-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
