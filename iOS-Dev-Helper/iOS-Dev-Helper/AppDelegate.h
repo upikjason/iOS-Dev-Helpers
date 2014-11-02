@@ -1,6 +1,5 @@
 //
 //  AppDelegate.h
-//  iOS-Dev-Helper
 //
 //  Copyright (c) 2014 upikjason. All rights reserved.
 //

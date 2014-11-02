@@ -1,6 +1,5 @@
 //
 //  JTableView.h
-//  Cuplin
 //
 //  Copyright (c) 2014 upikjason. All rights reserved.
 //

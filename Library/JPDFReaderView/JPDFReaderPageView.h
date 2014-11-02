@@ -1,8 +1,6 @@
 //
 //  JPDFReaderPageView.h
-//  iOS-Dev-Helper
 //
-//  Created by luongnguyen on 10/31/14.
 //  Copyright (c) 2014 upikjason. All rights reserved.
 //
 

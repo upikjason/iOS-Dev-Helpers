@@ -1,6 +1,5 @@
 //
 //  RootViewController.h
-//  iOS-Dev-Helper
 //
 //  Created by luongnguyen on 10/30/14.
 //  Copyright (c) 2014 upikjason. All rights reserved.
