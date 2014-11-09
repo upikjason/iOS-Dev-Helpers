@@ -24,8 +24,8 @@
 {
     [super viewDidLayoutSubviews];
     pdfView.frame = self.view.bounds;
-    NSString* path = [[NSBundle mainBundle] pathForResource:@"node" ofType:@"pdf"];
-    pdfView.highlightKeyword = @"Node";
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"RoR" ofType:@"pdf"];
+//    pdfView.highlightKeyword = @"Node";
     [pdfView loadPDFURL:[NSURL fileURLWithPath:path]];
 }
 

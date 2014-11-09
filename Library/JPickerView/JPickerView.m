@@ -7,28 +7,45 @@
 
 #import "JPickerView.h"
 
-#define DEFAULT_LIST_WIDTH              70
-#define DEFAULT_ROW_HEIGHT              30
+#define ANCHOR_INDEX                    20
 
-#define AUTOSIZE_FULL               UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth
-#define AUTOSIZE_FULL_HEIGHT        UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleTopMargin
+//**************************************************
 
-@interface JPickerView (Private)
+//----------------------------------------
+@interface JPickerViewComponent : NSObject
 
-- (void) selectListIndex:(int)idx;
-- (void) reloadPickerView;
+@property (nonatomic,strong) UITableView* tableView;
+@property (nonatomic) int numberOfRows;
+@property (nonatomic) int selectedIndex;
 
-- (void) setPickerConvertMode:(BOOL)is;
+@property (nonatomic) CGRect frameCenter;
+@property (nonatomic) float anchorOffset;
 
-- (void) setSelectedIndex:(int)idx ofTableView:(UITableView*)tbView onAfterAnimation:(void(^)(void))onAfterAnimation;
+@property (nonatomic) float height;
+@property (nonatomic) float width;
 
-- (void) detectAnchorOffset;
+@property (nonatomic) int willSelectedIndex;
 
-- (void) snapForTableView:(UITableView*)tbView;
+@property (nonatomic,strong) UIImageView* imgViewSelection;
 
-- (void) processAfterTableView:(UITableView*)tbView gotoIndex:(int)idx;
 @end
 
+//----------------------------------------
+@implementation JPickerViewComponent
+@end
+
+//**************************************************
+
+//----------------------------------------
+@interface JPickerView (Private)
+
+- (void) setupInit;
+- (void) detectAnchorOffsetForComponentIndex:(int)idx;
+- (void) snapForTableView:(UITableView*)tbView;
+
+@end
+
+//----------------------------------------
 @implementation JPickerView
 
 #pragma mark INIT
@@ -50,318 +67,328 @@
 }
 */
 
+- (void) layoutSubviews
+{
+    [super layoutSubviews];
+    
+    if (!isGotInit)
+    {
+        [self setupInit];
+        isGotInit = YES;
+        
+        [self reloadAllComponents];
+    }
+}
+
+- (void)dealloc
+{
+    [lstReclaimedComponents removeAllObjects];
+    [lstComponents removeAllObjects];
+        
+    self.dataSource = nil;
+    self.delegate = nil;
+    
+    [super dealloc];
+}
+
 #pragma mark MAIN
-- (void) presentData:(NSDictionary*)data
+- (NSInteger)numberOfRowsInComponent:(NSInteger)component
 {
-    if (![data objectForKey:@"lists"])
-    {
-        NSAssert(1>2, @"JPickerView:presentData >>> lists not found");
-        return;
-    }
-    
-    anchorIndex = 20;
-    if (self.pickerListWidth == 0)
-        self.pickerListWidth = DEFAULT_LIST_WIDTH;
-    
-    if (self.pickerRowHeight <= DEFAULT_ROW_HEIGHT)
-        self.pickerRowHeight = DEFAULT_ROW_HEIGHT;
-    
-    pickerData = data;
-    
-    if (!lstOfList) lstOfList = [NSMutableArray new];
-    if (!lstOfItem) lstOfItem = [NSMutableArray new];
-    
-    [lstOfList removeAllObjects];
-    for (id lst in [pickerData objectForKey:@"lists"])
-    {
-        [lstOfList addObject:[lst objectForKey:@"name"]];
-    }
-    int padding = anchorIndex;
-    for (int i = 0; i < padding; i++)
-    {
-        [lstOfList insertObject:[NSNull null] atIndex:0];
-        [lstOfList addObject:[NSNull null]];
-    }
-    
-    if (lstOfList.count == 0)
-    {
-        NSAssert(1>2, @"JPickerView:presentData >>> lists empty");
-        return;
-    }
-    
-    [self selectListIndex:0];
-    [self reloadPickerView];
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:component];
+    return comp.numberOfRows;
 }
 
-#pragma mark PRIVATE
-- (void) selectListIndex:(int)idx
+- (CGSize)rowSizeForComponent:(NSInteger)component
 {
-    selectedListIndex = idx;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:component];
+    return CGSizeMake(comp.width, comp.height);
+}
+
+// returns the view provided by the delegate via pickerView:viewForRow:forComponent:reusingView:
+// or nil if the row/component is not visible or the delegate does not implement
+// pickerView:viewForRow:forComponent:reusingView:
+- (UIView *)viewForRow:(NSInteger)row forComponent:(NSInteger)component
+{
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:component];
     
-    [lstOfItem removeAllObjects];
-    id lst = [[pickerData objectForKey:@"lists"] objectAtIndex:selectedListIndex];
-    [lstOfItem addObjectsFromArray:[lst objectForKey:@"items"]];
+    UITableView* tbView = comp.tableView;
+    UITableViewCell* cell = [tbView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
     
-    int padding = anchorIndex;
-    for (int i = 0; i < padding; i++)
+    return [cell.contentView viewWithTag:111];
+}
+
+// Reloading whole view or single component
+- (void)reloadAllComponents
+{
+    //reclaim
+    for (JPickerViewComponent* comp in lstComponents)
     {
-        [lstOfItem insertObject:[NSNull null] atIndex:0];
-        [lstOfItem addObject:[NSNull null]];
+        [comp.tableView removeFromSuperview];
+        [comp.imgViewSelection removeFromSuperview];
     }
+    [lstReclaimedComponents addObjectsFromArray:lstComponents];
+    [lstComponents removeAllObjects];
     
-    selectedItemIndex = 0;
-    if ([[lst objectForKey:@"is_convert"] boolValue])
+    //alloc
+    int n = [self.dataSource numberOfComponentsInPickerView:self];
+    
+    if (![self.delegate respondsToSelector:@selector(pickerView:widthForComponent:)])
     {
-        selectedConvertItemIndex = 0;
+        defWidth = self.frame.size.width/n;
     }
     else
     {
-        selectedConvertItemIndex = -1;
+        defWidth = -1;
+    }
+    
+    for (int i = 0; i < n; i++)
+    {
+        JPickerViewComponent* comp = nil;
+        if (lstReclaimedComponents.count == 0)
+        {
+            comp = [[[JPickerViewComponent alloc] init] autorelease];
+            comp.tableView = [[[UITableView alloc] init] autorelease];
+            comp.imgViewSelection = [[[UIImageView alloc] init] autorelease];
+        }
+        else
+        {
+            comp = [lstReclaimedComponents objectAtIndex:0];
+            [lstReclaimedComponents removeObjectAtIndex:0];
+        }
+        
+        [lstComponents addObject:comp];
+        
+        [self reloadComponent:i];
     }
 }
 
-- (void) reloadPickerView
+- (void)reloadComponent:(NSInteger)component
 {
-    if (!tbViewList)
-    {
-        imgViewBackground = [[UIImageView alloc] initWithFrame:self.bounds];
-        imgViewBackground.autoresizingMask = AUTOSIZE_FULL;
-        imgViewBackground.backgroundColor = [UIColor clearColor];
-        [self addSubview:imgViewBackground];
-        
-        tbViewList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-        tbViewList.separatorStyle = UITableViewCellSeparatorStyleNone;
-        tbViewList.frame = CGRectMake(0, 0, self.pickerListWidth, self.frame.size.height);
-        tbViewList.autoresizingMask = AUTOSIZE_FULL_HEIGHT;
-        tbViewList.dataSource = self;
-        tbViewList.delegate = self;
-        tbViewList.backgroundColor = [UIColor clearColor];
-        [tbViewList setShowsVerticalScrollIndicator:NO];
-        [self addSubview:tbViewList];
-        
-        float remainWidth = self.frame.size.width - self.pickerListWidth;
-        
-        tbViewItem = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-        tbViewItem.separatorStyle = UITableViewCellSeparatorStyleNone;
-        tbViewItem.frame = CGRectMake(self.pickerListWidth, 0, remainWidth/2, self.frame.size.height);
-        tbViewItem.autoresizingMask = AUTOSIZE_FULL_HEIGHT;
-        tbViewItem.dataSource = self;
-        tbViewItem.delegate = self;
-        tbViewItem.backgroundColor = [UIColor clearColor];
-        [tbViewItem setShowsVerticalScrollIndicator:NO];
-        [self addSubview:tbViewItem];
-
-        tbViewConvertItem = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-        tbViewConvertItem.separatorStyle = UITableViewCellSeparatorStyleNone;
-        tbViewConvertItem.frame = CGRectMake(self.pickerListWidth+tbViewItem.frame.size.width, 0, remainWidth/2, self.frame.size.height);
-        tbViewConvertItem.autoresizingMask = AUTOSIZE_FULL_HEIGHT;
-        tbViewConvertItem.dataSource = self;
-        tbViewConvertItem.delegate = self;
-        tbViewConvertItem.backgroundColor = [UIColor clearColor];
-        [tbViewConvertItem setShowsVerticalScrollIndicator:NO];
-        [self addSubview:tbViewConvertItem];
-        
-        imgViewSelectionIndicator = [[UIImageView alloc] initWithFrame:CGRectMake(tbViewList.frame.origin.x, (tbViewList.frame.size.height-self.pickerRowHeight)/2,self.frame.size.width, self.pickerRowHeight)];
-        [self addSubview:imgViewSelectionIndicator];
-        imgViewSelectionIndicator.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.1];
-    }
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:component];
     
-    [tbViewList reloadData];
-    if (anchorOffset == 0)
-    {
-        [self detectAnchorOffset];
-    }
-    [tbViewItem reloadData];
+    comp.numberOfRows = [self.dataSource pickerView:self numberOfRowsInComponent:component];
+    comp.selectedIndex = -1;
     
-    [self setSelectedIndex:selectedListIndex ofTableView:tbViewList onAfterAnimation:nil];
-    [self setSelectedIndex:selectedItemIndex ofTableView:tbViewItem onAfterAnimation:nil];
-
-    if (selectedConvertItemIndex >= 0)
+    if ([self.delegate respondsToSelector:@selector(pickerView:widthForComponent:)])
     {
-        [tbViewConvertItem reloadData];
-        [self setSelectedIndex:selectedConvertItemIndex ofTableView:tbViewConvertItem onAfterAnimation:nil];
-    }
-    
-    [self setPickerConvertMode:(selectedConvertItemIndex>=0)];
-}
-
-- (void) setPickerConvertMode:(BOOL)is
-{
-    float remainWidth = self.frame.size.width - self.pickerListWidth;
-
-    if (!is)
-    {
-        tbViewItem.frame = CGRectMake(self.pickerListWidth, 0, remainWidth, self.frame.size.height);
-        tbViewConvertItem.frame = CGRectMake(self.pickerListWidth+tbViewItem.frame.size.width, 0, 0, self.frame.size.height);
+        comp.width = [self.delegate pickerView:self widthForComponent:component];
     }
     else
     {
-        tbViewItem.frame = CGRectMake(self.pickerListWidth, 0, remainWidth/2, self.frame.size.height);
-        tbViewConvertItem.frame = CGRectMake(self.pickerListWidth+tbViewItem.frame.size.width, 0, remainWidth/2, self.frame.size.height);
+        comp.width = defWidth;
     }
+    
+    if ([self.delegate respondsToSelector:@selector(pickerView:rowHeightForComponent:)])
+    {
+        comp.height = [self.delegate pickerView:self rowHeightForComponent:component];
+    }
+    else
+    {
+        comp.height = 30.0;
+    }
+    
+    float orgX = 0;
+    for (int i = 0; i < component; i++)
+    {
+        JPickerViewComponent* prev = [lstComponents objectAtIndex:i];
+        orgX += prev.width;
+    }
+    
+    //table view
+    UITableView* tbView = comp.tableView;
+    tbView.tag = 10+component;
+    
+    tbView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleTopMargin;
+    tbView.frame = CGRectMake(orgX, 0, comp.width, self.frame.size.height);
+    tbView.backgroundColor = [UIColor clearColor];
+    tbView.dataSource = self;
+    tbView.delegate = self;
+    tbView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [tbView setShowsVerticalScrollIndicator:NO];
+    
+    [self addSubview:tbView];
+    
+    //selection
+    UIImageView* imgView = comp.imgViewSelection;
+    imgView.frame = CGRectMake(orgX, (tbView.frame.size.height-comp.height)/2, comp.width, comp.height);
+    imgView.image = [[UIImage imageNamed:@"JPickerView_SelectionIndicator.png"] stretchableImageWithLeftCapWidth:0 topCapHeight:20];
+    [self addSubview:imgView];
+
+    //reload
+    [comp.tableView reloadData];
+    
+    //anchor offset
+    [self detectAnchorOffsetForComponentIndex:component];
+    
+    //select initial
+    [self selectRow:0 inComponent:component animated:NO];
 }
 
-- (void) setSelectedIndex:(int)idx ofTableView:(UITableView*)tbView  onAfterAnimation:(void(^)(void))onAfterAnimation
+// selection. in this case, it means showing the appropriate row in the middle
+// scrolls the specified row to center.
+- (void)selectRow:(NSInteger)row inComponent:(NSInteger)component animated:(BOOL)animated
 {
-    float off = idx*self.pickerRowHeight + anchorOffset;
-    UIScrollView* scroll = (UIScrollView*)tbView;
-    if (!onAfterAnimation)
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:component];
+    float off = (row*comp.height)+comp.anchorOffset;
+    
+    UIScrollView* scroll = (UIScrollView*)comp.tableView;
+    if (!animated)
     {
         [scroll setContentOffset:CGPointMake(0,off)];
+        if ([self.delegate respondsToSelector:@selector(pickerView:didSelectRow:inComponent:)])
+        {
+            [self.delegate pickerView:self didSelectRow:row inComponent:component];
+        }
     }
     else
     {
         [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
             [scroll setContentOffset:CGPointMake(0,off)];
         } completion:^(BOOL finished) {
-            if (onAfterAnimation) onAfterAnimation();
+            if ([self.delegate respondsToSelector:@selector(pickerView:didSelectRow:inComponent:)])
+            {
+                [self.delegate pickerView:self didSelectRow:row inComponent:component];
+            }
         }];
     }
 }
 
-- (void) detectAnchorOffset
+// returns selected row. -1 if nothing selected
+- (NSInteger)selectedRowInComponent:(NSInteger)component
 {
-    NSIndexPath* idp = [NSIndexPath indexPathForRow:anchorIndex inSection:0];
-    [tbViewList scrollToRowAtIndexPath:idp atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    UITableViewCell* cell = [tbViewList cellForRowAtIndexPath:idp];
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:component];
+    return comp.selectedIndex;
+}
+
+#pragma mark Private
+- (void) setupInit
+{
+    lstComponents = [[NSMutableArray alloc] init];
+    lstReclaimedComponents = [[NSMutableArray alloc] init];
+}
+
+- (void) detectAnchorOffsetForComponentIndex:(int)idx
+{
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:idx];
+    
+    UITableView* tbView = comp.tableView;
+    
+    comp.frameCenter = CGRectMake(0, (tbView.frame.size.height-comp.height)/2, tbView.frame.size.width, comp.height);
+    
+    NSIndexPath* idp = [NSIndexPath indexPathForRow:ANCHOR_INDEX inSection:0];
+    [tbView scrollToRowAtIndexPath:idp atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    UITableViewCell* cell = [tbView cellForRowAtIndexPath:idp];
     CGRect rcCell = [self convertRect:cell.frame fromView:cell.superview];
-   
-    float off = imgViewSelectionIndicator.frame.origin.y - rcCell.origin.y;
-    UIScrollView* scroll = (UIScrollView*)tbViewList;
+    
+    float off = comp.frameCenter.origin.y - rcCell.origin.y;
+    UIScrollView* scroll = (UIScrollView*)tbView;
     [scroll setContentOffset:CGPointMake(0, scroll.contentOffset.y-off)];
     
-    anchorOffset = scroll.contentOffset.y;
-    NSLog(@"Detected anchor offset %.2f",anchorOffset);
+    comp.anchorOffset = scroll.contentOffset.y;
 }
 
 - (void) snapForTableView:(UITableView*)tbView
 {
-    //after user release the drag
-    // snap tbview to correct offset
+    int compIdx = tbView.tag - 10;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:compIdx];
+    
     UIScrollView* scroll = (UIScrollView*) tbView;
     
-    NSArray* lst = lstOfItem;
-    if (tbView == tbViewList)
-        lst = lstOfList;
+    int n = comp.numberOfRows-1;
     
-    int n = lst.count-(anchorIndex*2) - 1;
-    
-    float idf = (scroll.contentOffset.y-anchorOffset)/self.pickerRowHeight;
+    float idf = (scroll.contentOffset.y-comp.anchorOffset)/comp.height;
     
     int targetIdx = floor(idf+0.5);
     if (idf < 0) targetIdx = 0;
     else if (idf > n) targetIdx = n;
     
-    [self setSelectedIndex:targetIdx ofTableView:tbView onAfterAnimation:^{
-        [self processAfterTableView:tbView gotoIndex:targetIdx];
-    }];
+    [self selectRow:targetIdx inComponent:compIdx animated:YES];
 }
 
-- (void) processAfterTableView:(UITableView*)tbView gotoIndex:(int)idx
-{
-    if (tbView == tbViewList)
-    {
-        [self selectListIndex:idx];
-        [self reloadPickerView];
-        
-        NSString* title = [lstOfList objectAtIndex:idx+anchorIndex];
-        if ([self.delegate respondsToSelector:@selector(JPickerView:didSelectList:)])
-        {
-            [self.delegate JPickerView:self didSelectList:title];
-        }
-    }
-    else if (tbView == tbViewItem)
-    {
-        selectedItemIndex = idx;
-        
-        NSString* title = [lstOfItem objectAtIndex:idx+anchorIndex];
-        if ([self.delegate respondsToSelector:@selector(JPickerView:didSelectItem:)])
-        {
-            [self.delegate JPickerView:self didSelectItem:title];
-        }
-    }
-    else
-    {
-        selectedConvertItemIndex = idx;
-        
-        NSString* title = [lstOfItem objectAtIndex:idx+anchorIndex];
-        if ([self.delegate respondsToSelector:@selector(JPickerView:didSelectConvertItem:)])
-        {
-            [self.delegate JPickerView:self didSelectConvertItem:title];
-        }
-    }
-}
-
-#pragma mark UITableViewDelegate + UITableViewDataSource
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    if (tableView == tbViewList) return lstOfList.count;
-    return lstOfItem.count;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return self.pickerRowHeight;
-}
-
+#pragma mark UITableViewDataSource,UITableViewDelegate
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString* cellIdentifier = @"";
-    if (tableView == tbViewList) cellIdentifier = @"tbViewList.Cell";
-    else if (tableView == tbViewItem) cellIdentifier = @"tbViewItem.Cell";
-    else cellIdentifier = @"tbViewConvertItem.Cell";
-    
-    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"JPickerViewCell"];
     if (!cell)
     {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"JPickerViewCell"];
+        cell.textLabel.textAlignment = NSTextAlignmentCenter;
         cell.backgroundColor = [UIColor clearColor];
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     
-    int idx = indexPath.row;
-    if (tableView == tbViewList)
-    {
-        NSArray* arr = lstOfList;
-        NSString* title = [arr objectAtIndex:idx];
-        [cell.contentView setHidden:[title isKindOfClass:[NSNull class]]];
-        
-        if (![title isKindOfClass:[NSNull class]])
-        {
-            [self.delegate JPickerView:self configViewForList:title reuseView:cell.contentView width:self.pickerListWidth height:self.pickerRowHeight];
-        }
-    }
-    else
-    {
-        float remainWidth = self.frame.size.width - self.pickerListWidth;
-        if (selectedConvertItemIndex >= 0) remainWidth = remainWidth/2;
+    UIView* vw = [cell.contentView viewWithTag:111];
+    [vw setHidden:YES];
+    [cell.textLabel setHidden:YES];
 
-        NSArray* arr = lstOfItem;
-        NSString* title = [arr objectAtIndex:idx];
-        [cell.contentView setHidden:[title isKindOfClass:[NSNull class]]];
-
-        if (![title isKindOfClass:[NSNull class]])
-        {
-            [self.delegate JPickerView:self configViewForItem:title reuseView:cell.contentView width:remainWidth height:self.pickerRowHeight];
-        }
+    int compIdx = tableView.tag - 10;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:compIdx];
+    
+    if (indexPath.row < ANCHOR_INDEX || indexPath.row > comp.numberOfRows+ANCHOR_INDEX-1)
+    {
+        return cell;
     }
     
+    if ([self.delegate respondsToSelector:@selector(pickerView:titleForRow:forComponent:)])
+    {
+        [cell.textLabel setHidden:NO];
+        
+        cell.textLabel.text = [self.delegate pickerView:self titleForRow:(indexPath.row-ANCHOR_INDEX) forComponent:compIdx];
+    }
+    else if ([self.delegate respondsToSelector:@selector(pickerView:viewForRow:forComponent:reusingView:)])
+    {
+        UIView* vw = [cell.contentView viewWithTag:111];
+        if (!vw)
+        {
+            vw = [[[UIView alloc] init] autorelease];
+            vw.frame = cell.contentView.bounds;
+            vw.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth;
+            [cell.contentView addSubview:vw];
+        }
+        
+        [vw setHidden:NO];
+        [cell.contentView bringSubviewToFront:vw];
+        
+        [self.delegate pickerView:self viewForRow:(indexPath.row-ANCHOR_INDEX) forComponent:compIdx reusingView:vw];
+    }
+
     return cell;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    int compIdx = tableView.tag - 10;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:compIdx];
+    return comp.numberOfRows+(ANCHOR_INDEX*2);
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    int compIdx = tableView.tag - 10;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:compIdx];
+    return comp.height;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    int compIdx = tableView.tag - 10;
+
+    int targetIdx = indexPath.row - ANCHOR_INDEX;
+    
+    [self selectRow:targetIdx inComponent:compIdx animated:YES];
 }
 
 #pragma mark UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     UITableView* tbView = (UITableView*)scrollView;
+    int compIdx = tbView.tag - 10;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:compIdx];
+
     for (UITableViewCell* cell in tbView.visibleCells)
     {
         CGRect rcCell = [self convertRect:cell.frame fromView:cell.superview];
-        float off = 1.0 - ( fabsf(rcCell.origin.y - imgViewSelectionIndicator.frame.origin.y)/(self.frame.size.height/2));
+        float off = 1.0 - ( fabsf(rcCell.origin.y - comp.frameCenter.origin.y)/(self.frame.size.height/2));
         [cell setAlpha:off];
     }
 }
@@ -376,54 +403,53 @@
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
-    NSArray* lst = lstOfItem;
-    if (scrollView == tbViewList)
-        lst = lstOfList;
+    UITableView* tbView = (UITableView*)scrollView;
+    int compIdx = tbView.tag - 10;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:compIdx];
     
-    int n = lst.count-(anchorIndex*2) - 1;
+    int n = (int)comp.numberOfRows - 1;
     
-    float idf = (targetContentOffset->y-anchorOffset)/self.pickerRowHeight;
+    float idf = (targetContentOffset->y-comp.anchorOffset)/comp.height;
     int targetIdx = floor(idf+0.5);
     
-    int currentIdx = floor(((scrollView.contentOffset.y-anchorOffset)/self.pickerRowHeight) + 0.5);
+    int currentIdx = floor(((scrollView.contentOffset.y-comp.anchorOffset)/comp.height) + 0.5);
     
     if ((currentIdx <= 0 || currentIdx >= n) && (idf < 0 || idf > n))
     {
         targetContentOffset->y = scrollView.contentOffset.y;
-        idf = (targetContentOffset->y-anchorOffset)/self.pickerRowHeight;
+        idf = (targetContentOffset->y-comp.anchorOffset)/comp.height;
         targetIdx = floor(idf+0.5);
+        
+        if (targetIdx < 0) targetIdx = 0;
+        if (targetIdx > n) targetIdx = n;
+        
+        [self selectRow:targetIdx inComponent:compIdx animated:YES];
     }
     else if (currentIdx > 0 && currentIdx < n && (idf < 0 || idf > n))
     {
         if (idf < 0) targetIdx = 0;
         if (idf > n) targetIdx = n;
-        float off = targetIdx*self.pickerRowHeight+anchorOffset;
+        float off = targetIdx*comp.height+comp.anchorOffset;
         targetContentOffset->y = off;
+        
+        comp.willSelectedIndex = targetIdx;
     }
     else
     {
-        float off = targetIdx*self.pickerRowHeight+anchorOffset;
-        targetContentOffset->y = off;        
+        float off = targetIdx*comp.height+comp.anchorOffset;
+        targetContentOffset->y = off;
+        
+        comp.willSelectedIndex = targetIdx;
     }
-    
-    if (scrollView == tbViewList) indexTbViewList = targetIdx;
-    else if (scrollView == tbViewItem) indexTbViewItem = targetIdx;
-    else indexTbViewConvertItem = targetIdx;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    if (scrollView == tbViewList)
-    {
-        [self processAfterTableView:tbViewList gotoIndex:indexTbViewList];
-    }
-    else if (scrollView == tbViewItem)
-    {
-        [self processAfterTableView:tbViewItem gotoIndex:indexTbViewItem];
-    }
-    else
-    {
-        [self processAfterTableView:tbViewConvertItem gotoIndex:indexTbViewConvertItem];
-    }
+    UITableView* tbView = (UITableView*)scrollView;
+    int compIdx = tbView.tag - 10;
+    JPickerViewComponent* comp = [lstComponents objectAtIndex:compIdx];
+
+    [self selectRow:comp.willSelectedIndex inComponent:compIdx animated:NO];
 }
+
 @end

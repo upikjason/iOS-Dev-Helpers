@@ -57,17 +57,26 @@
 	CGContextTranslateCTM(ctx, 0.0, rcBound.size.height);
 	CGContextScaleCTM(ctx, 1.0, -1.0);
     
-    CGRect rc = CGPDFPageGetBoxRect(pdfPage, kCGPDFMediaBox);
+    CGRect rc = CGPDFPageGetBoxRect(pdfPage, kCGPDFCropBox);
     float scaleRatio = MIN(rcBound.size.width/rc.size.width,rcBound.size.height/rc.size.height);
     CGContextScaleCTM(ctx, scaleRatio, scaleRatio);
     
-    float ratioBound = rcBound.size.width/rcBound.size.height;
-    float ratioBox = rc.size.width/rc.size.height;
-    
-    float ratio = fabsf(ratioBound-ratioBox);
-    if (ratio < 0.1) ratio = 0;
-    float off = ratio * rc.size.height;
-    CGContextTranslateCTM(ctx, 0, off);
+//    //adjust content box position
+//    float ratioBound = rcBound.size.width/rcBound.size.height;
+//    float ratioBox = rc.size.width/rc.size.height;
+//    float ratio = fabsf(ratioBound-ratioBox);
+//    if (ratio < 0.1) ratio = 0;
+//    
+//    if (rcBound.size.width > rcBound.size.height)
+//    {
+//        float off = ratio * fabsf(rc.size.width-rcBound.size.width);
+//        CGContextTranslateCTM(ctx, off, 0);
+//    }
+//    else
+//    {
+//        float off = ratio * rc.size.height;
+//        CGContextTranslateCTM(ctx, 0, off);
+//    }
     
 	CGContextDrawPDFPage(ctx, pdfPage);
 	
